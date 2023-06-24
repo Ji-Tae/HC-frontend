@@ -5,13 +5,17 @@ import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 import CustomText from '../components/common/CustomText';
 import CustomBtn from '../components/common/CustomBtn';
+import jwtDecode from 'jwt-decode';
+import Cookies from 'js-cookie';
 function Login() {
-  // 로그인 성공 시 홈으로 보내기
   const navigate = useNavigate();
 
+  //홈으로 가기
   const goHome = () => {
     navigate('/');
   };
+
+  //회원가입으로 가기
   const goSignup = () => {
     navigate('/signups');
   };
@@ -22,6 +26,7 @@ function Login() {
     password: '',
   });
 
+  //userInput 핸들러
   const userInputChangeHandler = (e) => {
     const { name, value } = e.target;
     setUserInput({
@@ -30,12 +35,19 @@ function Login() {
     });
   };
 
-  // 요청 제출 로직
+  // 로그인 뮤테이션
   const loginMutation = useMutation(loginPost, {
-    onSuccess: () => {
-      goHome();
+    onSuccess: (res) => {
+      if (res.status === 200) {
+        const cookie = Cookies.get('accessToken');
+        const userInfo = jwtDecode(cookie);
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        goHome();
+      }
     },
   });
+
+  //로그인 제출 핸들러
   const submitHandler = (e) => {
     e.preventDefault();
 
@@ -46,6 +58,7 @@ function Login() {
 
     loginMutation.mutate(user);
   };
+
   return (
     <form onSubmit={submitHandler}>
       <LoginLayout>
@@ -73,10 +86,20 @@ function Login() {
           />
 
           <FindIdBox>
-            <CustomText fontSize='0.95rem' fontWeight='500' textDecoration='underline' cursor='pointer'>
+            <CustomText
+              fontSize='0.95rem'
+              fontWeight='500'
+              textDecoration='underline'
+              cursor='pointer'
+              onClick={() => alert(`이 서비스는 준비 중 입니다.`)}>
               아이디 찾기
             </CustomText>
-            <CustomText fontSize='0.95rem' fontWeight='500' textDecoration='underline' cursor='pointer'>
+            <CustomText
+              fontSize='0.95rem'
+              fontWeight='500'
+              textDecoration='underline'
+              cursor='pointer'
+              onClick={() => alert(`이 서비스는 준비 중 입니다.`)}>
               비밀번호 찾기
             </CustomText>
           </FindIdBox>

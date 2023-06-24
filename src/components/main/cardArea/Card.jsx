@@ -4,7 +4,7 @@ import CustomText from '../../common/CustomText';
 
 function Card() {
   return (
-    <Container>
+    <Container onClick={() => alert(`이 서비스는 준비 중 입니다.`)}>
       <NotiBox>
         <Noti>
           <CustomText color='#D3DCE7' fontSize='0.5rem' fontWeight='600'>
@@ -12,7 +12,7 @@ function Card() {
           </CustomText>
         </Noti>
       </NotiBox>
-      <div style={{ width: '50px', height: '50px', background: 'salmon' }}>이미지 자리</div>
+
       <CustomText fontSize='1.25rem' fontWeight='600'>
         2023
       </CustomText>
@@ -22,7 +22,6 @@ function Card() {
       <CustomText fontSize='1.25rem' fontWeight='600'>
         N회차
       </CustomText>
-      <div>좋아요자리</div>
     </Container>
   );
 }
@@ -43,6 +42,8 @@ const Container = styled.div`
   background: #d2e6ff;
 
   gap: 10px;
+
+  cursor: pointer;
 `;
 
 const NotiBox = styled.div`

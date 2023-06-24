@@ -4,11 +4,18 @@ import { css, styled } from 'styled-components';
 //재사용성 컴포넌트
 function CustomBtn(props) {
   //프롭스를 구조분해 할당 해서 선언 한 겁니다.
-  //bc: background-color
-  //border: 보더 설정입니다.
-  //_borderradius: 보더 모서리 설정입니다.
-  //color: 글씨 색입니다.
-  //상위 폴더의 버튼 props에 linewidth가 없다면 외각선이 보이지 않습니다.
+  //width : 버튼 넓이
+  //height : 버튼 높이
+  //margin : 마진
+  //bc : background-color
+  //shadow : 버튼의 그림자 설정
+  //border : 보더 설정입니다.
+  //_borderradius : 보더 모서리 설정입니다.
+  //color : 글씨 색입니다.
+  //disabled : 버튼 비활성화. 이 프롭스만 넘겨줘도 되게 설정해놓음.
+  //position : 포지션 설정
+  //type : 버튼 타입 지정
+  //onClick : 클릭 시 실행 되는 함수 프롭
   const { children, bc, width, height, border, onClick, margin, shadow, type, position, _borderradius, disabled } =
     props;
   return (
@@ -41,7 +48,7 @@ const ButtonStyled = styled.button`
     disabled
       ? css`
           pointer-events: none;
-          background-color: aliceblue;
+          opacity: 0.1;
         `
       : ''}
   ${({ border }) =>

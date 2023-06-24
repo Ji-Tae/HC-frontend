@@ -3,14 +3,14 @@ import { styled } from 'styled-components';
 import CustomText from '../common/CustomText';
 import moreImg from '../../Img/MainPage/moreImg.svg';
 
-function Label({ label, more }) {
+function Label({ label, goPage }) {
   return (
     <LableContainer>
       <CustomText fontSize='1.55rem' fontWeight='700'>
         {label}
       </CustomText>
       <MoreBtn>
-        <CustomText fontSize='1rem' fontWeight='400' textDecoration='underline'>
+        <CustomText fontSize='1rem' fontWeight='400' textDecoration='underline' onClick={goPage}>
           더보기
         </CustomText>
         <img src={moreImg} alt='more' />

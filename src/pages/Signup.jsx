@@ -9,10 +9,11 @@ import CustomText from '../components/common/CustomText';
 
 function Signup() {
   const navigate = useNavigate();
+
   //전공 불러오기
   const { data } = useQuery('major', majorGet);
 
-  //input 상태 저장
+  //input 스테이트
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
@@ -20,33 +21,35 @@ function Signup() {
   const [major_id, setMajor_id] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
 
-  //오류메세지 상태저장
+  //오류메세지 스테이트
   const [emailMsg, setEmailMsg] = useState('');
   const [nicknameMsg, setNicknameMsg] = useState('');
   const [passwordMsg, setPasswordMsg] = useState('');
   const [confirmPwMsg, setConfirmPwMsg] = useState('');
 
-  //유효성검사
+  //유효성검사 스테이트
   const [isEmail, setIsEmail] = useState(false);
   const [isNickname, setIsNickname] = useState(false);
   const [isPassword, setIsPassword] = useState(false);
   const [isConfirmPw, setIsConfirmPw] = useState(false);
   const [isMajor, setIsMajor] = useState(false);
+  const [isVerifyCode, setIsVerifyCode] = useState(false);
 
-  //중복검사
+  //중복검사 스테이트
   const [existsEmail, setExistsEmail] = useState(false);
   const [existsNickname, setExistsNickname] = useState(false);
 
-  //이메일 인증
+  //이메일 인증 스테이트
   const [verifyEmail, setVerifyEmail] = useState(false);
 
-  // 회원가입 후 로그인 페이지로 이동 하기 위한 함수
+  // 로그인으로 보내기
   const goLogin = () => {
     navigate('/logins');
   };
 
   // 이메일 이벤트 핸들러
   const onChangeEmailHandler = (e) => {
+    //이메일 정규 표현식
     const emailRegex = /[a-zA-Z0-9]+[@][a-zA-Z0-9]+[.]+[a-zA-Z]+[.]*[a-zA-Z]*/;
     const emailCurrent = e.target.value;
     setEmail(emailCurrent);
@@ -62,6 +65,7 @@ function Signup() {
 
   //닉네임 이벤트 핸들러
   const onChangeNicknameHandler = (e) => {
+    // 닉네임 정규표현식
     const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
     const nicknameCurrent = e.target.value;
     setNickname(nicknameCurrent);
@@ -77,12 +81,12 @@ function Signup() {
 
   //비밀번호 이벤트 핸들러
   const onChangePasswordHandler = (e) => {
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,15}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,15}$/;
     const passwordCurrent = e.target.value;
     setPassword(passwordCurrent);
 
     if (!passwordRegex.test(passwordCurrent)) {
-      setPasswordMsg('영문 대소문자, 숫자, 특수문자를 사용한 최소 8글자 최대 15글자를 입력해주세요.');
+      setPasswordMsg('비밀번호는 영문 대문자, 소문자, 숫자, 특수문자를 모두 포함한 8~15자여야 합니다.');
       setIsPassword(false);
     } else {
       setPasswordMsg('올바른 비밀번호 형식입니다.');
@@ -105,7 +109,7 @@ function Signup() {
     }
   };
 
-  //전공 이벤트 핸들러
+  //전공 선택 이벤트 핸들러
   const onChangeMajorHandler = (e) => {
     const majorCurrent = e.target.value;
     setMajor_id(majorCurrent);
@@ -119,21 +123,27 @@ function Signup() {
 
   //인증코드 이벤트 핸들러
   const onChangeVerifyCodeHandler = (e) => {
-    setVerifyCode(e.target.value);
+    const verifyCodeCurrent = e.target.value;
+    setVerifyCode(verifyCodeCurrent);
+
+    if (verifyCodeCurrent.length === 6) {
+      setIsVerifyCode(true);
+    } else {
+      setIsVerifyCode(false);
+    }
   };
 
-  // 인증 코드 발송 함수
+  // 인증 코드 발송 뮤테이션
   const authEmaliMutation = useMutation(authMailPost, {
     onSuccess: () => {
       setExistsEmail(true);
     },
   });
 
-  //이메일 중복 체크 핸들러
+  //이메일 중복 체크 핸들러, 이후 통신이 성공적이면 바로 인증코드 발송
   const emailConfirmClick = async () => {
     const response = await emailConfirmGet(email);
-    console.log(response);
-    if (response === 200) {
+    if (response?.status === 200) {
       //중복 체크 후 바로 인증코드 발송
       authEmaliMutation.mutate({ email });
     }
@@ -142,18 +152,21 @@ function Signup() {
   //닉네임 중복 체크 핸들러
   const nicknameConfirmHandler = async () => {
     const response = await nicknameConfirmGet(nickname);
-    if (response === 200) {
+    if (response?.status === 200) {
       setExistsNickname(true);
     }
   };
 
-  // 이메일 인증하기 함수
+  // 이메일 인증 뮤테이션
   const verifyMailMutation = useMutation(verifyMailPost, {
-    onSuccess: () => {
-      setVerifyEmail(true);
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        setVerifyEmail(true);
+      }
     },
   });
 
+  // 이메일인증 클릭 이벤트 핸들러
   const verifyMailClick = () => {
     const verify = {
       email,
@@ -162,12 +175,16 @@ function Signup() {
     verifyMailMutation.mutate(verify);
   };
 
-  //회원가입 요청 함수
+  //회원가입 요청 뮤테이션
   const signupMutation = useMutation(signupPost, {
-    onSuccess: () => {
-      goLogin();
+    onSuccess: (res) => {
+      if (res.status === 200) {
+        goLogin();
+      }
     },
   });
+
+  //회원가입 요청 핸들러
   const submitHandler = (e) => {
     e.preventDefault();
     const newUser = {
@@ -208,8 +225,8 @@ function Signup() {
                 onChange={onChangeEmailHandler}
                 value={email}
                 type='email'
-                placeholder='email@gamil.com'
-                pattern='[a-zA-Z0-9]+[@][a-zA-Z0-9]+[.]+[a-zA-Z]+[.]*[a-zA-Z]*'
+                placeholder='email@gmail.com'
+                pattern='[a-zA-Z0-9]+(?:[.][a-zA-Z0-9]+)*[@][a-zA-Z0-9]+[.]+[a-zA-Z]+[.]*[a-zA-Z]*'
               />
 
               <CustomBtn
@@ -218,7 +235,8 @@ function Signup() {
                 height='60px'
                 bc='#282897'
                 _borderradius='10px'
-                onClick={emailConfirmClick}>
+                onClick={emailConfirmClick}
+                disabled={!isEmail}>
                 <CustomText color='#fff' fontSize='1.2rem' fontWeight='600'>
                   중복확인
                 </CustomText>
@@ -244,7 +262,8 @@ function Signup() {
                 height='60px'
                 bc='#282897'
                 _borderradius='10px'
-                onClick={verifyMailClick}>
+                onClick={verifyMailClick}
+                disabled={!isVerifyCode}>
                 <CustomText color='#fff' fontSize='1.2rem' fontWeight='600'>
                   인증하기
                 </CustomText>
@@ -298,7 +317,8 @@ function Signup() {
                 height='60px'
                 bc='#282897'
                 _borderradius='10px'
-                onClick={nicknameConfirmHandler}>
+                onClick={nicknameConfirmHandler}
+                disabled={!isNickname}>
                 <CustomText color='#fff' fontSize='1.2rem' fontWeight='600'>
                   중복확인
                 </CustomText>

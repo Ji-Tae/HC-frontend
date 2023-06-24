@@ -1,141 +1,129 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import CustomText from '../common/CustomText';
+import { useQuery } from 'react-query';
+import { majorGet, matchingCertGet } from '../../api/certificate';
+import { useNavigate } from 'react-router-dom';
 
 function CertCategory() {
-  const [isClick1, setIsClick1] = useState(false);
-  const [isClick2, setIsClick2] = useState(false);
-  const [isClick3, setIsClick3] = useState(false);
-  const [isClick4, setIsClick4] = useState(false);
+  const navigate = useNavigate();
 
+  //전공 카테고리 상태관리
+  const [selectedMajorId, setSelectedMajorId] = useState('');
+
+  //전공 가져오기
+  const { data: majorData } = useQuery('major', majorGet);
+
+  //전공에 따른 자격증 가져오기
+  const { data: certificateData, isLoading } = useQuery(
+    ['matchingCertGet', selectedMajorId],
+    () => matchingCertGet(selectedMajorId),
+    {
+      enabled: selectedMajorId !== '',
+      //5분 동안 캐싱처리
+      cacheTime: 300 * 1000,
+    },
+  );
+
+  //전공 카테고리 클릭 핸들러
+  const onClickHandler = (majorId) => {
+    setSelectedMajorId(majorId);
+  };
+  //자격증 클릭 핸들러
+  const certClickHandler = (certificateId) => {
+    navigate(`/test-list/${certificateId}`);
+  };
+
+  //최초 렌더링 시에 전공 제일 앞 카테고리를 스테이트로 지정
   useEffect(() => {
-    setIsClick1(true);
-  }, []);
+    if (majorData?.length > 0) {
+      setSelectedMajorId(majorData[0].major_id);
+    }
+  }, [majorData]);
 
-  const onClickMajor1 = () => {
-    setIsClick1((prev) => !prev);
-    setIsClick2(false);
-    setIsClick3(false);
-    setIsClick4(false);
-  };
-  const onClickMajor2 = () => {
-    setIsClick2((prev) => !prev);
-    setIsClick1(false);
-    setIsClick3(false);
-    setIsClick4(false);
-  };
-  const onClickMajor3 = () => {
-    setIsClick3((prev) => !prev);
-    setIsClick1(false);
-    setIsClick2(false);
-    setIsClick4(false);
-  };
-  const onClickMajor4 = () => {
-    setIsClick4((prev) => !prev);
-    setIsClick1(false);
-    setIsClick2(false);
-    setIsClick3(false);
-  };
   return (
     <CatContainer>
       <MajorCat>
-        <MajorCatItemBox isclick={isClick1 ? 'true' : 'false'} onClick={onClickMajor1}>
-          <CustomText fontSize='1.55rem' fontweight='500'>
-            컴퓨터 공학
-          </CustomText>
-        </MajorCatItemBox>
-        <MajorCatItemBox isclick={isClick2 ? 'true' : 'false'} onClick={onClickMajor2}>
-          <CustomText fontSize='1.55rem' fontweight='500'>
-            정보통신 공학
-          </CustomText>
-        </MajorCatItemBox>
-        <MajorCatItemBox isclick={isClick3 ? 'true' : 'false'} onClick={onClickMajor3}>
-          <CustomText fontSize='1.55rem' fontweight='500'>
-            정보보호학
-          </CustomText>
-        </MajorCatItemBox>
-        <MajorCatItemBox isclick={isClick4 ? 'true' : 'false'} onClick={onClickMajor4}>
-          <CustomText fontSize='1.55rem' fontweight='500'>
-            전자계산학
-          </CustomText>
-        </MajorCatItemBox>
+        {majorData?.map((major) => (
+          <MajorCatItemBox key={major.major_id} isclick={selectedMajorId === major.major_id ? 'true' : 'false'}>
+            <CustomText
+              value={major.major_id}
+              fontSize='1.55rem'
+              fontweight='500'
+              onClick={() => onClickHandler(major.major_id)}>
+              {major.name}
+            </CustomText>
+          </MajorCatItemBox>
+        ))}
       </MajorCat>
       <CertCat>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
-        <CustomText fontSize='1.5rem' fontweight='500' color='#898989'>
-          데이터 분석기사
-        </CustomText>
+        <CertCatWrapper>
+          {isLoading ? (
+            <div>자격증을 불러오는 중 입니다.</div>
+          ) : (
+            certificateData?.map((cert) => (
+              <CustomText
+                key={cert.certificate_id}
+                fontSize='1.5rem'
+                fontweight='500'
+                color='#898989'
+                cursor='pointer'
+                onClick={() => certClickHandler(cert.certificate_id)}>
+                {cert.name}
+              </CustomText>
+            ))
+          )}
+        </CertCatWrapper>
       </CertCat>
     </CatContainer>
   );
 }
+
 const CatContainer = styled.div`
   height: 309px;
-
   background: #f8faff;
   margin-bottom: 142px;
-
   border-radius: 10px;
-
   display: flex;
   flex-direction: column;
 `;
 
 const MajorCat = styled.div`
   height: 60px;
-
+  padding: 0px 50px;
   border-radius: 10px;
-
   background: #d2e6ff;
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
 
-  align-items: center;
-  justify-content: space-around;
-
+  > * {
+    flex: 0 0 25%;
+  }
   text-align: center;
 `;
 
 const CertCat = styled.div`
   height: 249px;
-
   padding-top: 40px;
-  padding-left: 80px;
+`;
 
+const CertCatWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
+  text-align: center;
 
   > * {
-    flex: 0 0 27%;
+    flex: 0 0 25%;
+    cursor: pointer;
+    color: #898989;
+    font-size: 1.5rem;
+    font-weight: 500;
+    height: 50px;
+    transition: color 0.3s ease-in-out;
+
+    &:hover {
+      color: #282897;
+    }
   }
 `;
 
@@ -144,11 +132,27 @@ const MajorCatItemBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 170px;
+  width: fit-content;
   height: 50px;
   box-sizing: border-box;
-  color: ${({ isclick }) => (isclick === 'true' ? '#282897' : ' #898989')};
-  border-bottom: ${({ isclick }) => (isclick === 'true' ? '5px solid #282897' : '')};
+  color: ${({ isclick }) => (isclick === 'true' ? '#282897' : '#898989')};
+  position: relative;
+
+  > * {
+    font-size: ${({ isclick }) => (isclick === 'true' ? '1.55rem' : '1.4rem')};
+    font-weight: ${({ isclick }) => (isclick === 'true' ? '700' : '500')};
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: ${({ isclick }) => (isclick === 'true' ? '100%' : '0')};
+    height: 3px;
+    background-color: #282897;
+    transition: width 0.3s ease-in-out;
+  }
 `;
 
 export default CertCategory;

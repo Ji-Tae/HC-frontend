@@ -12,8 +12,9 @@ function CustomText(props) {
   // onClick : 이벤트 함수를 넘겨 줍니다.
   // fontFamily : 글자 모양 입니다.
   //textDecoration: 텍스트 데코레이션 (밑 줄 등등)입니다.
-
-  const { children, fontSize, color, fontWeight, margin, cursor, onClick, fontFamily, textDecoration, opacity } = props;
+  //opacity: 투명도
+  const { children, fontSize, color, fontWeight, margin, cursor, onClick, fontFamily, textDecoration, opacity, value } =
+    props;
   return (
     <TextStyled
       fontSize={fontSize}
@@ -24,7 +25,8 @@ function CustomText(props) {
       onClick={onClick}
       fontFamily={fontFamily}
       textDecoration={textDecoration}
-      opacity={opacity}>
+      opacity={opacity}
+      value={value}>
       {children}
     </TextStyled>
   );

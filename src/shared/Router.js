@@ -10,6 +10,8 @@ import SearchResultPage from '../pages/SearchResultPage';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ParsingEditor from '../pages/ParsingEditor';
+import TestListPages from '../pages/TestListPages';
+import ExamEditor from '../pages/ExamEditor';
 
 function Router() {
   return (
@@ -21,9 +23,13 @@ function Router() {
         <Route path='/signups' element={<Signup />} />
         <Route path='/adminpages' element={<AdminPage />} />
         <Route path='/usermypages/:user_id' element={<UserMyPage />} />
-        <Route path='/testpages' element={<TestPage />} />
+        <Route path='/testpages/exam/:id' element={<TestPage />} />
         <Route path='/searchresultpage' element={<SearchResultPage />} />
+        <Route path='/test-list' element={<TestListPages />} />
+        <Route path='/test-list/:certificateId' element={<TestListPages />} />
+        <Route path='/test-list/subject/:subjectId' element={<TestListPages />} />
         <Route path='/parsingeditor' element={<ParsingEditor />} />
+        <Route path='/exameditor' element={<ExamEditor />} />
       </Routes>
       <FooterConditionalRender />
     </BrowserRouter>
@@ -32,10 +38,11 @@ function Router() {
 
 function FooterConditionalRender() {
   const location = useLocation();
-  return location.pathname !== '/parsingeditor' &&
-    location.pathname !== '/logins' &&
-    location.pathname !== '/signups' &&
-    location.pathname !== '/adminpages' ? (
+  return !location.pathname.startsWith('/parsingeditor') &&
+    !location.pathname.startsWith('/logins') &&
+    !location.pathname.startsWith('/signups') &&
+    !location.pathname.startsWith('/testpages/exam/') &&
+    !location.pathname.startsWith('/adminpages') ? (
     <Footer />
   ) : null;
 }

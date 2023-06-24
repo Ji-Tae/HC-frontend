@@ -65,4 +65,5 @@ const matchingSubGet = async (certId) => {
     }
   }
 };
+
 export { majorGet, certificateGet, subjectGet, matchingCertGet, matchingSubGet };

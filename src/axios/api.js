@@ -20,7 +20,7 @@ instance.interceptors.request.use((config) => {
 
   // 로그인 되었다면 헤더에 토큰 추가.
   if (accessToken) {
-    config.headers.accessToken = accessToken;
+    config.headers.accesstoken = `Bearer ${accessToken}`;
   }
   return config;
 });

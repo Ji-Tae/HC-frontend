@@ -17,12 +17,16 @@ function AdminPage() {
     navigate('/parsingeditor');
   };
 
-  const modalHandler = () => {
+  //클릭 시 모달창 오픈
+  const openModalHandler = () => {
     setModal(true);
   };
+
+  // portal사용
   const modalRoot = document.createElement('div');
   modalRoot.id = 'modal-root';
   document.body.appendChild(modalRoot);
+
   return (
     <AdminLayout>
       <CustomBtn width='500px' height='200px' _borderradius='10px' bc='#282897' onClick={goParsingEditor}>
@@ -30,7 +34,7 @@ function AdminPage() {
           에디터로 등록
         </CustomText>
       </CustomBtn>
-      <CustomBtn width='500px' height='200px' _borderradius='10px' bc='#282897' onClick={modalHandler}>
+      <CustomBtn width='500px' height='200px' _borderradius='10px' bc='#282897' onClick={openModalHandler}>
         <CustomText fontSize='2.5rem' fontWeight='700' color='#fff'>
           파일로 등록
         </CustomText>
@@ -40,7 +44,6 @@ function AdminPage() {
   );
 }
 
-//어드민 페이지
 const AdminLayout = styled.div`
   padding: 50px 0;
   display: flex;
